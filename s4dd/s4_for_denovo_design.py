@@ -74,7 +74,7 @@ class StructuredStateSpaceSequenceModel(nn.Module):
         ]
         self.pool_config = {"_name_": "pool", "stride": 1, "expand": None}
 
-        self.embedding = nn.Embedding(self.vocab_size, self.model_dim)
+        self.embedding = nn.Embedding(self.vocab_size, self.model_dim, sparse=False)
         self.model = SequenceModel(
             d_model=self.model_dim,
             n_layers=self.n_layers,
@@ -158,6 +158,7 @@ class S4forDenovoDesign:
         learning_rate: float = 0.001,
         batch_size: int = 2048,
         device: str = "cuda",
+        **kwargs,
     ) -> None:
         """Creates an `S4forDenovoDesign` instance.
         The default configurations are the ones used in the [paper](https://chemrxiv.org/engage/chemrxiv/article-details/65168004ade1178b24567cd3).
@@ -203,6 +204,9 @@ class S4forDenovoDesign:
         # These are set during training
         self.token2label = None
         self.label2token = None
+
+        for k,v in kwargs.items():
+            setattr(self, k, v)
 
         self.s4_model = StructuredStateSpaceSequenceModel(
             model_dim=self.model_dim,

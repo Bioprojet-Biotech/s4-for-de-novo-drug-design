@@ -155,9 +155,9 @@ class EarlyStopping(TorchCallback):
 
     def _is_improvement(self, current):
         if self.mode == "min":
-            return current < self.best - self.delta
+            return current < (self.best - self.delta)
 
-        return current > self.best + self.delta
+        return current > (self.best + self.delta)
 
 
 class ModelCheckpoint(TorchCallback):
@@ -228,6 +228,12 @@ class HistoryLogger(TorchCallback):
         super().__init__()
         self.savedir = savedir
         os.makedirs(self.savedir, exist_ok=True)
+
+    def on_start(self, **kwargs) -> Dict[str, List[float]]:        
+        """Creates an empty history file at the beginning of training."""
+
+        with open(os.path.join(self.savedir, "history.json"), "r") as f:
+            return json.load(f)
 
     def on_epoch_end(self, history: Dict[str, List[float]], **kwargs) -> None:
         """Saves the training history in the end of every epoch.
