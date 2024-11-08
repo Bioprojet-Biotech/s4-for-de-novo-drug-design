@@ -39,6 +39,8 @@ def pad_sequences(
     sequences: List[List[Union[str, int]]],
     padding_length: int,
     padding_value: Union[str, int],
+    drop_long_sequences: bool = False,
+    drop_small_sequences: bool = False,
 ) -> List[List[Union[str, int]]]:
     """Pad sequences to a given length. The padding is done at the end of the sequences.
     Longer sequences are truncated from the beginning.
@@ -57,8 +59,16 @@ def pad_sequences(
     List[List[Union[str, int]]
         The padded sequences.
     """
+
+    if drop_small_sequences:
+        sequences = [seq for seq in sequences if len(seq) > 10 ]
+    if drop_long_sequences:
+        sequences = [seq for seq in sequences if len(seq) < padding_length ]
+
+
     lens = [len(seq) for seq in sequences]
     diffs = [max(padding_length - len, 0) for len in lens]
+    
     padded_sequences = [
         seq + [padding_value] * diff for seq, diff in zip(sequences, diffs)
     ]
